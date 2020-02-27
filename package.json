@@ -2,25 +2,39 @@
     "name": "automate",
     "displayName": "automate",
     "description": "Extension for ESR Automate Textual Language",
-    "version": "0.0.1",
+    "version": "0.0.2",
+    "publisher": "maxdanify",
     "engines": {
         "vscode": "^1.42.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/mdanilov/automate-vscode-extension"
     },
     "categories": [
         "Other"
     ],
     "contributes": {
-        "languages": [{
-            "id": "atm",
-            "aliases": ["Automate", "atm"],
-            "extensions": [".atm"],
-            "configuration": "./language-configuration.json"
-        }],
-        "grammars": [{
-            "language": "atm",
-            "scopeName": "source.automate",
-            "path": "./syntaxes/atm.tmLanguage.json"
-        }]
+        "languages": [
+            {
+                "id": "atm",
+                "aliases": [
+                    "Automate",
+                    "atm"
+                ],
+                "extensions": [
+                    ".atm"
+                ],
+                "configuration": "./language-configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "atm",
+                "scopeName": "source.automate",
+                "path": "./syntaxes/atm.tmLanguage.json"
+            }
+        ]
     },
     "activationEvents": [
         "onCommand:extension.helloWorld",
