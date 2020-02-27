@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "baseUrl": ".",
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "target": "es6",
+        "outDir": "out",
+        "strict": true,
+        "sourceMap": true,
+        "composite": true,
+        "declaration": true
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules"]
+}
