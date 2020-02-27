@@ -2,30 +2,73 @@
     "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
     "name": "Automate",
     "patterns": [
-        {
-            "include": "#keywords"
-        },
-        {
-            "include": "#strings"
-        }
+        { "include": "#all" }
     ],
     "repository": {
-        "keywords": {
-            "patterns": [{
-                "name": "keyword.control.atm",
-                "match": "\\b(if|while|for|return)\\b"
-            }]
-        },
-        "strings": {
-            "name": "string.quoted.double.atm",
-            "begin": "\"",
-            "end": "\"",
-            "patterns": [
-                {
-                    "name": "constant.character.escape.atm",
-                    "match": "\\\\."
-                }
+        "all": {
+            "patterns":[
+                { "include": "#block" },
+                { "include": "#comment" },
+                { "include": "#annotation" },
+                { "include": "#macro_placeholder" },
+                { "include": "#macro_calculated_attribute_value" },
+                { "include": "#command" },
+                { "include": "#string" },
+                { "include": "#link" },
+                { "include": "#value" }
             ]
+        },
+        "comment": {
+            "name": "comment.line.number-sign.atm",
+            "match": "^\\s*#.*"
+        },
+        "annotation": {
+            "name": "comment.line.atm",
+            "match": "^\\s*@(.*)",
+            "captures": {
+                "1": { "patterns": [ { "include": "#macro_argument" }] }
+            }
+        },
+        "block": {
+            "begin": "{",
+            "end": "}",
+            "patterns": [
+                { "include": "#all" }
+            ]
+        },
+        "macro_argument": {
+            "name": "variable.parameter.atm",
+            "match": "<\\w+( = \\w+)?>:?"
+        },
+        "macro_calculated_attribute_value": {
+            "name": "variable.parameter.atm",
+            "match": "<?<= (.+)>",
+            "captures": {
+                "1": { "patterns": [ { "name": "entity.name.tag.atm", "match": "#{[^{}]*}" }] }
+            }
+        },
+        "macro_placeholder": {
+            "name": "support.variable.atm",
+            "match": "<\\w+>"
+        },
+        "command": {
+            "name": "keyword.control.atm",
+            "match": "^\\s*[A-Z]\\w+ ((?>\\w+)(?!:))?",
+            "captures": {
+                "1": { "name": "string.unquoted.atm" }
+            }
+        },
+        "value": {
+            "name": "constant.language.atm",
+            "match": "(\\w)+"
+        },
+        "link": {
+            "name": "markup.underline.link.atm",
+            "match": "/+\\w+"
+        },
+        "string": {
+            "name": "string.quoted.double.atm",
+            "match": "\"([^\"])*\""
         }
     },
     "scopeName": "source.automate"
