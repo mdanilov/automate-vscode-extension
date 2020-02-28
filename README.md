@@ -1,20 +1,23 @@
 # Automate VSCode Extension
 
-This is the ESR Automate Textual Language support plugin for Visual Studio Code.
+This is the ESR Automate Textual Language support plugin for Visual Studio Code. [ESR Labs Automate](https://www.esrlabs.com/work/automate/) - a lightweight yet powerful approach to AUTOSAR software development.
 
 ## Features
 
-- Automate Textual syntax highlight
+- Automate Textual syntax highlighting.
+- Auto-completion of language commands and command attributes.
+- Improved navigation, developers can follow references across files and jump backward to source elements.
 
 ## Requirements
 
-No additional requirements so far.
+- RText service is part of the ESR Labs Automate product and it's required by some features. [Get Automate](https://www.esrlabs.com/work/automate/).
 
 ## Extension Settings
 
 This extension contributes the following settings:
 
-* `myExtension.enable`: enable/disable this extension
+* `automate.enable`: enable/disable this extension
+* `automate.useRTextServer`: enable/disable Automate RText service
 
 ## Known Issues
 
