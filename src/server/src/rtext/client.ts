@@ -30,6 +30,7 @@ export class Client {
     private _reconnectTimeout?: NodeJS.Timeout;
     private _keepAliveTask?: NodeJS.Timeout;
     private _rtextService?: RTextService;
+    private _responseData: Buffer = Buffer.alloc(0);
 
     public async start(config: ServiceConfig): Promise<any> {
         return this.runRTextService(config).then(service => {
@@ -55,6 +56,10 @@ export class Client {
 
     public getContentCompletion(context: Context): Promise<rtextProtocol.ContentCompleteResponse> {
         return this.send({ command: "content_complete", context: context.lines, column: context.pos });
+    }
+
+    public getLinkTargets(context: Context): Promise<rtextProtocol.LinkTargetsResponse> {
+        return this.send({ command: "link_targets", context: context.lines, column: context.pos });
     }
 
     public stop() {
@@ -122,40 +127,32 @@ export class Client {
     }
 
     private onData(data: any) {
-        const str = data.toString("utf-8");
-        console.log("Received: " + str);
-        const m = str.match(/^(\d+)\{/);
-        if (m) {
-            const lengthLength = m[1].length;
-            const length = Number(m[1]);
-            if (str.length >= lengthLength + length) {
-                const json = str.slice(lengthLength, lengthLength + length);
-                const obj = JSON.parse(json);
+        this._responseData = Buffer.concat([this._responseData, data], this._responseData.length + data.length);
+        let obj: any;
+        while (obj = Message.extract(this._responseData)) {
+            this._responseData = this._responseData.slice(obj._dataLength);
+            console.log("Received: " + JSON.stringify(obj));
 
-                const found = this._pendingRequests.findIndex((request) => {
-                    return request.invocationId === obj.invocation_id;
-                });
+            const found = this._pendingRequests.findIndex((request) => {
+                return request.invocationId === obj.invocation_id;
+            });
 
-                if (found !== -1) {
-                    const pending = this._pendingRequests[found];
-                    if (obj.type === "response") {
-                        if (pending.command === "load_model" ||
-                            pending.command === "version" ||
-                            pending.command === "context_info" ||
-                            pending.command === "content_complete") {
-                            pending.resolveFunc(obj);
-                        }
-                        this._pendingRequests.splice(found, 1);
-                    } else if (obj.type === "progress" &&
-                        pending.progressCallback) {
-                        pending.progressCallback!(obj);
-                    } else if (obj.type === "unknown_command_error") {
-                        console.log("Error: unknown command - " + obj.command);
-                        this._pendingRequests.splice(found, 1);
-                    } else if (obj.type === "unsupported_version") {
-                        console.log("Error: unsupported version " + obj.version);
-                        this._pendingRequests.splice(found, 1);
+            if (found !== -1) {
+                const pending = this._pendingRequests[found];
+                if (obj.type === "response") {
+                    if (pending.resolveFunc) {
+                        pending.resolveFunc(obj);
                     }
+                    this._pendingRequests.splice(found, 1);
+                } else if (obj.type === "progress" &&
+                    pending.progressCallback) {
+                    pending.progressCallback!(obj);
+                } else if (obj.type === "unknown_command_error") {
+                    console.log("Error: unknown command - " + obj.command);
+                    this._pendingRequests.splice(found, 1);
+                } else if (obj.type === "unsupported_version") {
+                    console.log("Error: unsupported version " + obj.version);
+                    this._pendingRequests.splice(found, 1);
                 }
             }
         }
@@ -166,8 +163,8 @@ export class Client {
             config: config
         };
         return new Promise<RTextService>((resolve, reject) => {
-            let command = config.command.split(' ')[0];
-            let args = config.command.split(' ').slice(1);
+            let command = config.command.trim().split(' ')[0];
+            let args = config.command.trim().split(' ').slice(1);
             let cwd = path.dirname(config.file);
             console.log(`Run ${config.command}`);
             let proc = child_process.spawn(command, args, { cwd: cwd, shell: process.platform === 'win32' });

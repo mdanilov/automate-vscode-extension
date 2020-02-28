@@ -2,6 +2,8 @@ import {
     createConnection,
     Diagnostic,
     DiagnosticSeverity,
+    DocumentLink,
+    DocumentLinkParams,
     ProposedFeatures,
     Range,
     TextDocuments,
@@ -103,6 +105,43 @@ connection.onHover((params: TextDocumentPositionParams) => {
     }
 });
 
+connection.onDocumentLinks((params: DocumentLinkParams): DocumentLink[] => {
+    const document = documents.get(params.textDocument.uri);
+    let links: DocumentLink[] = [];
+    if (document) {
+        const lines = document.getText().split('\n');
+        const re = /\/+[\/\w]+/g;
+        lines.forEach((line, index) => {
+            let m;
+            do {
+                m = re.exec(line);
+                if (m) {
+                    let range = Range.create(
+                        { line: index, character: m.index },
+                        { line: index, character: m.index + m[0].length }
+                    );
+                    let data = { textDocument: params.textDocument };
+                    links.push({ range, data });
+                }
+            } while (m)
+        });
+    }
+    return links;
+});
+
+connection.onDocumentLinkResolve((link: DocumentLink): Promise<DocumentLink> | undefined => {
+    const document = documents.get(link.data.textDocument.uri);
+    if (document) {
+        const ctx = extractContext(document, link.range.start);
+        return rtextClient.getLinkTargets(ctx).then((response: rtext.LinkTargetsResponse) => {
+            if (response.targets.length > 0) {
+                link.target = `${response.targets[0].file}#${response.targets[0].line}`;
+            }
+            return link;
+        });
+    }
+});
+
 connection.onCompletion((params: CompletionParams): Promise<CompletionItem[]> | undefined => {
     function createSnippetString(insert: string): string {
         let begin = 0;
@@ -165,6 +204,9 @@ connection.onInitialize((params) => {
             },
             completionProvider: {
                 resolveProvider: false
+            },
+            documentLinkProvider: {
+                resolveProvider: true
             },
             hoverProvider: settings.hoverProvider
         },

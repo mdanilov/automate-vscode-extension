@@ -97,3 +97,47 @@ export interface CompletionOption {
 export interface ContentCompleteResponse {
     options: CompletionOption[];
 }
+
+export interface LinkTarget {
+    /**
+     * The string to be displayed to the user,
+     */
+    display: string;
+
+    /**
+     * The filename.
+     */
+    file: string;
+
+    /**
+     * The line number within the file.
+     */
+    line: number;
+
+    /**
+     * An optional description field may provide more information about a particular link target.
+     */
+    desc: string;
+}
+
+/**
+ * If there is no link, the backend may send an empty response.
+ */
+export interface LinkTargetsResponse {
+    /**
+     * The column of the beginning of the link.
+     * Column positions are inclusive, i.e. are part of the link.
+     */
+    begin_column: number;
+
+    /**
+     * The column of the end of the link.
+     * Column positions are inclusive, i.e. are part of the link.
+     */
+    end_column: number;
+
+    /**
+     * Actual link targets.
+     */
+    targets: LinkTarget[];
+}

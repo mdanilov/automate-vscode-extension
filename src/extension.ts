@@ -21,6 +21,11 @@ export function activate(context: vscode.ExtensionContext) {
     // The server is implemented in node
     serverModule = context.asAbsolutePath(path.join("out", "server", "src", "server.js"));
 
+    vscode.workspace.textDocuments.forEach((document) => {
+        if (document.languageId == 'atm' && !document.isClosed) {
+            newTextDocumentOpened(document);
+        }
+    })
     vscode.workspace.onDidOpenTextDocument((document) => {
         if (document.languageId == 'atm') {
             newTextDocumentOpened(document);
@@ -39,7 +44,7 @@ async function newTextDocumentOpened(document: vscode.TextDocument): Promise<voi
     if (automateSettings.useRTextServer && folder && config && !clients.has(config.file)) {
         // The debug options for the server
         // --inspect=6009: runs the server in Node's Inspector mode so VS Code can attach to the server for debugging
-        const debugOptions = { execArgv: ["--nolazy", `--inspect-brk=${6009 + clients.size}`] };
+        const debugOptions = { execArgv: ["--nolazy", `--inspect-brk=${6011 + clients.size}`] };
 
         // If the extension is launched in debug mode then the debug server options are used
         // Otherwise the run options are used
@@ -53,16 +58,17 @@ async function newTextDocumentOpened(document: vscode.TextDocument): Promise<voi
         };
 
         let configPath = path.dirname(config.file);
+        let pattern = `${configPath}/**/{${config.patterns.join('|')}}`;
         // Options to control the language client
         const clientOptions: LanguageClientOptions = {
             // Register the server for bake project files
-            documentSelector: [{ scheme: "file", language: "automate", pattern: config.patterns[0] }],
+            documentSelector: [{ scheme: "file", language: "atm", pattern: pattern }],
             synchronize: {
                 // Notify the server about file changes contained in the workspace
                 fileEvents: vscode.workspace.createFileSystemWatcher(`${configPath}/**/*.atm`),
             },
             initializationOptions: {
-                hoverProvider: true,
+                hoverProvider: false,  // does not supported by RText
                 rtextConfig: config
             },
             workspaceFolder: folder

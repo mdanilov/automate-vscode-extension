@@ -1,6 +1,6 @@
 {
     "name": "automate",
-    "displayName": "automate",
+    "displayName": "ESR Automate",
     "description": "Extension for ESR Automate Textual Language",
     "version": "0.0.2",
     "publisher": "maxdanify",
@@ -14,6 +14,14 @@
     "categories": [
         "Other"
     ],
+    "capabilities": {
+        "completionProvider": {
+            "resolveProvider": false
+        },
+        "documentLinkProvider": {
+            "resolveProvider": true
+        }
+    },
     "contributes": {
         "languages": [
             {
