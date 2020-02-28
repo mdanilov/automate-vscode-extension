@@ -141,3 +141,44 @@ export interface LinkTargetsResponse {
      */
     targets: LinkTarget[];
 }
+
+export interface FindElement {
+    /**
+     * The string to be displayed to the user,
+     */
+    display: string;
+
+    /**
+     * The filename.
+     */
+    file: string;
+
+    /**
+     * The line number within the file.
+     */
+    line: number;
+
+    /**
+     * An optional description field my provide more information about a particular element.
+     */
+    desc: string;
+}
+
+/**
+ * If there are no search results, the backend may send an empty response.
+ */
+export interface FindElementsResponse {
+    /**
+     * The total number of elements found.
+     * Note that the number of elements actually returned may be lower than the total number.
+     * If the total number of elements is unknown ``total_elements`` should be set to -1.
+     * This allows to truncate large search result sets and still provide the user with the number of
+     * elements which were omitted or at least with the fact that the result set has been truncated.
+     */
+    total_elements: number;
+
+    /**
+     * A list of elements found.
+     */
+    elements: FindElement[];
+}

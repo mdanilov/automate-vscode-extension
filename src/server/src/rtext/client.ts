@@ -62,6 +62,10 @@ export class Client {
         return this.send({ command: "link_targets", context: context.lines, column: context.pos });
     }
 
+    public findElements(pattern: string): Promise<rtextProtocol.FindElementsResponse> {
+        return this.send({ command: "find_elements", pattern: pattern });
+    }
+
     public stop() {
         if (this._reconnectTimeout)
             clearTimeout(this._reconnectTimeout);
@@ -122,7 +126,7 @@ export class Client {
         console.log("Connection closed");
 
         this._reconnectTimeout = setTimeout(() => {
-            this._client.connect(this._rtextService?.port!, "127.0.0.1", () => this.onConnect());
+            //this._client.connect(this._rtextService?.port!, "127.0.0.1", () => this.onConnect());
         }, 1000);
     }
 

@@ -6,6 +6,7 @@ import {
     DocumentLinkParams,
     ProposedFeatures,
     Range,
+    SymbolInformation,
     TextDocuments,
     TextDocumentSyncKind,
     TextDocument,
@@ -15,6 +16,8 @@ import {
     CompletionParams,
     CompletionItem,
     CompletionItemKind,
+    WorkspaceSymbolParams,
+    SymbolKind
 } from "vscode-languageserver";
 
 import { Client as RTextClient } from "./rtext/client";
@@ -103,6 +106,26 @@ connection.onHover((params: TextDocumentPositionParams) => {
             return { contents: response.desc };
         });
     }
+});
+
+connection.onWorkspaceSymbol((params: WorkspaceSymbolParams): Promise<SymbolInformation[]> | undefined => {
+    return rtextClient.findElements(params.query).then((response: rtext.FindElementsResponse) => {
+        let info: SymbolInformation[] = [];
+        response.elements.forEach((e) => {
+            info.push({
+                name: e.display,
+                location: {
+                    uri: e.file,
+                    range: {
+                        start: { line: e.line, character: 0 },
+                        end: { line: e.line, character: Number.MAX_SAFE_INTEGER }
+                    }
+                },
+                kind: SymbolKind.Null
+            });
+        });
+        return info;
+    });
 });
 
 connection.onDocumentLinks((params: DocumentLinkParams): DocumentLink[] => {
