@@ -4,7 +4,6 @@
         "module": "commonjs",
         "moduleResolution": "node",
         "target": "es6",
-        "outDir": "out",
         "strict": true,
         "sourceMap": true,
         "composite": true,

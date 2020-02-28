@@ -14,17 +14,6 @@
     "categories": [
         "Other"
     ],
-    "configuration": {
-        "type": "object",
-        "title": "Automate",
-        "properties": {
-            "automate.useRTextServer": {
-                "type": "boolean",
-                "default": true,
-                "description": "Enable Automate RText service."
-            }
-        }
-    },
     "contributes": {
         "languages": [
             {
@@ -45,18 +34,28 @@
                 "scopeName": "source.automate",
                 "path": "./syntaxes/atm.tmLanguage.json"
             }
-        ]
+        ],
+        "configuration": {
+            "type": "object",
+            "title": "Automate",
+            "properties": {
+                "automate.useRTextServer": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable Automate RText service."
+                }
+            }
+        }
     },
     "activationEvents": [
-        "onCommand:extension.helloWorld",
         "workspaceContains:**/*.atm"
     ],
     "main": "./out/extension.js",
     "scripts": {
         "vscode:prepublish": "npm run compile",
-        "compile": "tsc -p ./",
+        "compile": "tsc -b",
         "lint": "eslint src --ext ts",
-        "watch": "tsc -watch -p ./",
+        "watch": "tsc --watch -b",
         "pretest": "npm run compile && npm run lint",
         "test": "node ./out/test/runTest.js"
     },

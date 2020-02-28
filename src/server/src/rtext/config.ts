@@ -13,11 +13,11 @@ export namespace Config {
         let dir = path.resolve(path.dirname(file));
         let search_pattern = file_pattern(file);
         while (dir != last_dir) {
-            let config_file = "#{dir}/.rtext";
+            let config_file = `${dir}/.rtext`;
             if (fs.existsSync(config_file)) {
                 let configs = parse_config_file(config_file);
                 let config = configs.find(s => {
-                    return s.patterns.some(p => p == search_pattern);
+                    return s.patterns.some(p => p === search_pattern);
                 });
                 if (config) {
                     return config

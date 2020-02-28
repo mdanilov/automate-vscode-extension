@@ -163,10 +163,9 @@ connection.onInitialize((params) => {
                 change: TextDocumentSyncKind.Full,
                 openClose: true,
             },
-            // @todo not tested properly
-            // completionProvider: {
-            //     resolveProvider: false
-            // },
+            completionProvider: {
+                resolveProvider: false
+            },
             hoverProvider: settings.hoverProvider
         },
     };
@@ -175,7 +174,7 @@ connection.onInitialize((params) => {
 connection.onInitialized(async () => {
     connection.console.log(`[Server(${process.pid}) ${workspaceFolder}] Initialized received`);
     if (workspaceFolder) {
-        await rtextClient.start(settings.command, settings.args);
+        await rtextClient.start(settings.rtextConfig);
         setTimeout(() => provideDiagnostics(), 0);
     }
 });

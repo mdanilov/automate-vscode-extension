@@ -11,7 +11,7 @@
         "strict": true,
         "baseUrl": ".",
         "paths": {
-            "server": ["server"]
+            "server": ["src/server"]
         }
     },
     "exclude": [

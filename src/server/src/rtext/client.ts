@@ -6,6 +6,7 @@ import { clearInterval } from "timers";
 import * as rtextProtocol from "./protocol";
 import { Context } from "./context";
 import { Message } from "./message";
+import { ServiceConfig } from "./config";
 
 class PendingRequest {
     public invocationId: number = 0;
@@ -15,8 +16,7 @@ class PendingRequest {
 }
 
 interface RTextService {
-    command: string;
-    args?: string[];
+    config: ServiceConfig;
     process?: child_process.ChildProcess;
     port?: number;
 }
@@ -31,8 +31,8 @@ export class Client {
     private _keepAliveTask?: NodeJS.Timeout;
     private _rtextService?: RTextService;
 
-    public async start(command: string, args?: string[]): Promise<any> {
-        return this.runRTextService(command, args).then(service => {
+    public async start(config: ServiceConfig): Promise<any> {
+        return this.runRTextService(config).then(service => {
             this._rtextService = service;
             service.process!.on('close', () => {
                 this._rtextService = undefined;
@@ -161,15 +161,16 @@ export class Client {
         }
     }
 
-    private async runRTextService(command: string, args?: string[]): Promise<RTextService> {
+    private async runRTextService(config: ServiceConfig): Promise<RTextService> {
         let rtextService: RTextService = {
-            command: command,
-            args: args
+            config: config
         };
         return new Promise<RTextService>((resolve, reject) => {
-            console.log(`Run ${command} ${args?.join(" ")}`);
-            let proc = child_process.spawn(command, args, { shell: process.platform === 'win32' });
-
+            let command = config.command.split(' ')[0];
+            let args = config.command.split(' ').slice(1);
+            let cwd = path.dirname(config.file);
+            console.log(`Run ${config.command}`);
+            let proc = child_process.spawn(command, args, { cwd: cwd, shell: process.platform === 'win32' });
             if (proc != null) {
                 proc.stdout.on('data', (data: any) => {
                     const stdout: string = data.toString();
