@@ -14,14 +14,6 @@
     "categories": [
         "Other"
     ],
-    "capabilities": {
-        "completionProvider": {
-            "resolveProvider": false
-        },
-        "documentLinkProvider": {
-            "resolveProvider": true
-        }
-    },
     "contributes": {
         "languages": [
             {
@@ -44,7 +36,6 @@
             }
         ],
         "configuration": {
-            "type": "object",
             "title": "Automate",
             "properties": {
                 "automate.useRTextServer": {
