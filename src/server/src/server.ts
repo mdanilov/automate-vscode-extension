@@ -9,7 +9,6 @@ import {
     SymbolInformation,
     TextDocuments,
     TextDocumentSyncKind,
-    TextDocument,
     Hover,
     TextDocumentPositionParams,
     InsertTextFormat,
@@ -20,6 +19,8 @@ import {
     SymbolKind
 } from "vscode-languageserver";
 
+import { TextDocument } from "vscode-languageserver-textdocument";
+
 import { Client as RTextClient } from "./rtext/client";
 import * as rtext from "./rtext/protocol";
 import { Context } from "./rtext/context";
@@ -29,7 +30,7 @@ import { ServerInitializationOptions } from "./options";
 const connection = createConnection(ProposedFeatures.all);
 
 // Create a manager for open text documents
-const documents = new TextDocuments();
+const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 
 // The workspace folder this server is operating on
 let workspaceFolder: string | null | undefined;
@@ -94,10 +95,6 @@ function extractContext(document: TextDocument, position: any): Context {
     return Context.extract(lines, pos);
 }
 
-documents.onDidOpen((event) => {
-    connection.console.log(`[Server(${process.pid}) ${workspaceFolder}] Document opened: ${event.document.uri}`);
-});
-
 connection.onHover((params: TextDocumentPositionParams) => {
     const document = documents.get(params.textDocument.uri);
     if (document) {
@@ -132,9 +129,9 @@ connection.onDocumentLinks((params: DocumentLinkParams): DocumentLink[] => {
     const document = documents.get(params.textDocument.uri);
     let links: DocumentLink[] = [];
     if (document) {
-        const lines = document.getText().split('\n');
+        const lines: string[] = document.getText().split('\n');
         const re = /\/+[\/\w]+/g;
-        lines.forEach((line, index) => {
+        lines.forEach((line: string, index: number) => {
             let m;
             do {
                 m = re.exec(line);

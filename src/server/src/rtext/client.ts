@@ -126,7 +126,7 @@ export class Client {
         console.log("Connection closed");
 
         this._reconnectTimeout = setTimeout(() => {
-            //this._client.connect(this._rtextService?.port!, "127.0.0.1", () => this.onConnect());
+            this._client.connect(this._rtextService?.port!, "127.0.0.1", () => this.onConnect());
         }, 1000);
     }
 
@@ -163,12 +163,12 @@ export class Client {
     }
 
     private async runRTextService(config: ServiceConfig): Promise<RTextService> {
-        let rtextService: RTextService = {
+        const rtextService: RTextService = {
             config: config
         };
         return new Promise<RTextService>((resolve, reject) => {
-            let command = config.command.trim().split(' ')[0];
-            let args = config.command.trim().split(' ').slice(1);
+            const command = config.command.trim().split(' ')[0];
+            const args = config.command.trim().split(' ').slice(1);
             let cwd = path.dirname(config.file);
             console.log(`Run ${config.command}`);
             let proc = child_process.spawn(command, args, { cwd: cwd, shell: process.platform === 'win32' });
