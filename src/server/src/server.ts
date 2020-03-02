@@ -228,7 +228,8 @@ connection.onInitialize((params) => {
             documentLinkProvider: {
                 resolveProvider: true
             },
-            hoverProvider: settings.hoverProvider
+            hoverProvider: settings.hoverProvider,
+            workspaceSymbolProvider: true
         },
     };
 });

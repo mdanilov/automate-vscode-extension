@@ -47,6 +47,8 @@ export class Client {
             this._keepAliveTask = setInterval(() => {
                 this.getVersion().then((response) => { console.log("Keep alive, got version " + response.version); });
             }, 60 * 1000);
+        }).catch(error => {
+            console.log(`Failed to run service ${config.command}, reason: ${error.message}`);
         });
     }
 
@@ -91,6 +93,10 @@ export class Client {
     }
 
     public send(data: any, progressCallback?: Function | undefined): Promise<any> {
+        if (!this._connected) {
+            return Promise.reject();
+        }
+
         data.type = "request";
         data.version = 1;
         data.invocation_id = this._invocationCounter;
@@ -172,20 +178,19 @@ export class Client {
             let cwd = path.dirname(config.file);
             console.log(`Run ${config.command}`);
             let proc = child_process.spawn(command, args, { cwd: cwd, shell: process.platform === 'win32' });
-            if (proc != null) {
-                proc.stdout.on('data', (data: any) => {
-                    const stdout: string = data.toString();
-                    console.log(stdout);
-                    const foundPort = stdout.match(/.*listening on port (\d*)/);
-                    if (foundPort) {
-                        rtextService.port = parseInt(foundPort[1]);
-                        rtextService.process = proc;
-                        resolve(rtextService);
-                    }
-                });
-            } else {
-                reject(new Error("Run command failed: " + command));
-            }
+            proc.on('error', (error) => {
+                reject(error);
+            });
+            proc.stdout.on('data', (data: any) => {
+                const stdout: string = data.toString();
+                console.log(stdout);
+                const foundPort = stdout.match(/.*listening on port (\d*)/);
+                if (foundPort) {
+                    rtextService.port = parseInt(foundPort[1]);
+                    rtextService.process = proc;
+                    resolve(rtextService);
+                }
+            });
         });
     }
 }
