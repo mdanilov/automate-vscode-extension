@@ -67,8 +67,10 @@
             "match": "/+\\w+"
         },
         "string": {
-            "name": "string.quoted.double.atm",
-            "match": "\"([^\"])*\""
+            "patterns": [
+                { "name": "string.quoted.double.atm", "match": "\"([^\"])*\"" },
+                { "match": ":\\s*(\\w+)", "captures": { "1": { "name": "string.unquoted.atm" } } }
+            ]
         }
     },
     "scopeName": "source.automate"
