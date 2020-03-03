@@ -53,7 +53,7 @@
         },
         "command": {
             "name": "keyword.control.atm",
-            "match": "^\\s*[A-Z]\\w+ ((?>\\w+)(?!:))?",
+            "match": "^\\s*[A-Z]\\w+\\s*((?>\\w+)(?!:))?",
             "captures": {
                 "1": { "name": "string.unquoted.atm" }
             }
