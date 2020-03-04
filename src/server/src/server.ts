@@ -67,7 +67,7 @@ function provideDiagnostics() {
             problem.problems.forEach((fileProblem) => {
                 const diagnostic: Diagnostic = {
                     message: fileProblem.message,
-                    range: Range.create(fileProblem.line, 0, fileProblem.line, Number.MAX_SAFE_INTEGER),
+                    range: Range.create(fileProblem.line - 1, 0, fileProblem.line - 1, Number.MAX_SAFE_INTEGER),
                     severity: convertSeverity(fileProblem.severity),
                 };
 
