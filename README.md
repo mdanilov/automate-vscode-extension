@@ -2,6 +2,14 @@
 
 This is the ESR Automate Textual Language support plugin for Visual Studio Code. [ESR Labs Automate](https://www.esrlabs.com/work/automate/) - a lightweight yet powerful approach to AUTOSAR software development.
 
+## Getting Started
+Syntax highlighting works out-of-the-box. For other features ESR Automate RText service is required. How to configure the RText service see the ESR Automate User Manual, Chapter Editor Back-End Service. Basically you have to create the `.rtext` configuration file with the command for the `*.atm` file extension.
+
+```
+*.atm:
+automate-rtext-service <args...>
+```
+
 ## Features
 
 - Automate Textual syntax highlighting.
@@ -23,7 +31,7 @@ Use `Ctrl+space` to show the completion list.
 
 ## Requirements
 
-- RText service is part of the ESR Labs Automate product and it's required by some features. [Get Automate](https://www.esrlabs.com/work/automate/).
+- RText service is part of the ESR Labs Automate product and it's required for some features. [Get Automate](https://www.esrlabs.com/work/automate/).
 
 ## Extension Settings
 
@@ -34,4 +42,4 @@ This extension contributes the following settings:
 
 ## Known Issues
 
-No known issues.
+1. Changes to .rtext configuration file are not automatically applied, so VSCode needs to be restarted to apply it.

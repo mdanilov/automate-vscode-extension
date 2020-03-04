@@ -1,6 +1,7 @@
 import * as net from "net";
 import * as child_process from "child_process";
 import * as path from "path";
+import * as os from "os";
 import { clearInterval } from "timers";
 
 import * as rtextProtocol from "./protocol";
@@ -168,15 +169,27 @@ export class Client {
         }
     }
 
+    private transformCommand(command: string): string {
+        let m = command.match(/^cmd\s*\/c\s*/);
+        if (m && os.platform() !== 'win32') {
+            command = command.substring(m[0].length);
+        }
+        else if (!m && os.platform() === 'win32') {
+            command = "cmd \/c " + command;
+        }
+        return command;
+    }
+
     private async runRTextService(config: ServiceConfig): Promise<RTextService> {
         const rtextService: RTextService = {
             config: config
         };
         return new Promise<RTextService>((resolve, reject) => {
-            const command = config.command.trim().split(' ')[0];
-            const args = config.command.trim().split(' ').slice(1);
+            const configCommand = this.transformCommand(config.command.trim());
+            const command = configCommand.split(' ')[0];
+            const args = configCommand.split(' ').slice(1);
             let cwd = path.dirname(config.file);
-            console.log(`Run ${config.command}`);
+            console.log(`Run ${configCommand}`);
             let proc = child_process.spawn(command, args, { cwd: cwd, shell: process.platform === 'win32' });
             proc.on('error', (error) => {
                 reject(error);
