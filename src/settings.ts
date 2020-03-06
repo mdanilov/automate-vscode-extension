@@ -7,8 +7,8 @@ export interface ExtensionSettings {
 export class AutomateExtensionSettings {
     private _configData: ExtensionSettings;
 
-    constructor(folder?: vscode.WorkspaceFolder) {
-        this._configData = <ExtensionSettings><any>vscode.workspace.getConfiguration("automate", folder?.uri);
+    constructor(folder: vscode.WorkspaceFolder) {
+        this._configData = <ExtensionSettings><any>vscode.workspace.getConfiguration("automate", folder.uri);
     }
 
     get useRTextServer(): boolean { return this.configData.useRTextServer; }

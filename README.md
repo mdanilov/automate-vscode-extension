@@ -42,4 +42,4 @@ This extension contributes the following settings:
 
 ## Known Issues
 
-1. Changes to .rtext configuration file are not automatically applied, so VSCode needs to be restarted to apply it.
+No known issues.

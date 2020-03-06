@@ -9,42 +9,22 @@ import {
     TransportKind,
 } from "vscode-languageclient";
 
-import { Config } from "./server/src/rtext/config";
+import { ServiceConfig } from "./server/src/rtext/config";
+import { ConnectorManager, ConnectorInterface } from "./server/src/rtext/connectorManager";
 import { AutomateExtensionSettings } from "./settings";
 
-let clients: Map<string, LanguageClient> = new Map();
 let serverModule: string;
 
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
-    // The server is implemented in node
-    serverModule = context.asAbsolutePath(path.join("out", "server", "src", "server.js"));
+class LspConnector implements ConnectorInterface {
+    private _client: LanguageClient;
+    static debugPort: number = 6011;
 
-    vscode.workspace.textDocuments.forEach((document) => {
-        if (document.languageId == 'atm' && !document.isClosed) {
-            newTextDocumentOpened(document);
-        }
-    })
-    vscode.workspace.onDidOpenTextDocument((document) => {
-        if (document.languageId == 'atm') {
-            newTextDocumentOpened(document);
-        }
-    });
-}
-
-// this method is called when your extension is deactivated
-export function deactivate() {}
-
-async function newTextDocumentOpened(document: vscode.TextDocument): Promise<void> {
-    let folder = vscode.workspace.getWorkspaceFolder(document.uri);
-    const automateSettings = new AutomateExtensionSettings(folder);
-    let config = Config.find_service_config(document.uri.fsPath);
-
-    if (automateSettings.useRTextServer && folder && config && !clients.has(config.file)) {
+    constructor(config: ServiceConfig, data?: any) {
         // The debug options for the server
         // --inspect=6009: runs the server in Node's Inspector mode so VS Code can attach to the server for debugging
-        const debugOptions = { execArgv: ["--nolazy", `--inspect-brk=${6011 + clients.size}`] };
+        const debugOptions = LspConnector.debugPort > 6012 ?
+            { execArgv: ["--nolazy"] } : { execArgv: ["--nolazy", `--inspect-brk=${LspConnector.debugPort}`] };
+        LspConnector.debugPort++;
 
         // If the extension is launched in debug mode then the debug server options are used
         // Otherwise the run options are used
@@ -71,11 +51,11 @@ async function newTextDocumentOpened(document: vscode.TextDocument): Promise<voi
                 hoverProvider: false,  // does not supported by RText
                 rtextConfig: config
             },
-            workspaceFolder: folder
+            workspaceFolder: data.workspaceFolder
         };
 
         // Create the language client and start the client.
-        let client = new LanguageClient(
+        this._client = new LanguageClient(
             "automateServer",
             "Automate Language Server",
             serverOptions,
@@ -83,7 +63,45 @@ async function newTextDocumentOpened(document: vscode.TextDocument): Promise<voi
         );
 
         // Start the client. This will also launch the server
-        client.start();
-        clients.set(config.file, client);
+        this._client.start();
+    }
+
+    public stop(): void {
+        this._client.stop();
+    }
+}
+
+let connectorManager: ConnectorManager = new ConnectorManager(LspConnector);
+
+// this method is called when your extension is activated
+// your extension is activated the very first time the command is executed
+export function activate(context: vscode.ExtensionContext) {
+    // The server is implemented in node
+    serverModule = context.asAbsolutePath(path.join("out", "server", "src", "server.js"));
+
+    vscode.workspace.textDocuments.forEach((document) => {
+        if (document.languageId == 'atm' && !document.isClosed) {
+            newTextDocumentOpened(document);
+        }
+    })
+    vscode.workspace.onDidOpenTextDocument((document) => {
+        if (document.languageId == 'atm') {
+            newTextDocumentOpened(document);
+        }
+    });
+}
+
+// this method is called when your extension is deactivated
+export function deactivate() {
+    connectorManager.allConnectors().forEach(con => con.stop());
+}
+
+async function newTextDocumentOpened(document: vscode.TextDocument): Promise<void> {
+    let workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri);
+    if (workspaceFolder) {
+        const automateSettings = new AutomateExtensionSettings(workspaceFolder);
+        if (automateSettings.useRTextServer) {
+            connectorManager.connectorForFile(document.uri.fsPath, { workspaceFolder });
+        }
     }
 }

@@ -8,6 +8,7 @@ import * as rtextProtocol from "./protocol";
 import { Context } from "./context";
 import { Message } from "./message";
 import { ServiceConfig } from "./config";
+import { ConnectorInterface } from "./connectorManager";
 
 class PendingRequest {
     public invocationId: number = 0;
@@ -22,7 +23,7 @@ interface RTextService {
     port?: number;
 }
 
-export class Client {
+export class Client implements ConnectorInterface {
 
     private _client = new net.Socket();
     private _invocationCounter = 0;
@@ -133,7 +134,9 @@ export class Client {
         console.log("Connection closed");
 
         this._reconnectTimeout = setTimeout(() => {
-            this._client.connect(this._rtextService?.port!, "127.0.0.1", () => this.onConnect());
+            if (this._rtextService) {
+                this._client.connect(this._rtextService.port!, "127.0.0.1", () => this.onConnect());
+            }
         }, 1000);
     }
 
