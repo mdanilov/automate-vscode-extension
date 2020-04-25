@@ -60,7 +60,7 @@
         },
         "value": {
             "name": "constant.language.atm",
-            "match": "(\\w)+"
+            "match": "([\\w.])+"
         },
         "link": {
             "name": "markup.underline.link.atm",
@@ -69,7 +69,7 @@
         "string": {
             "patterns": [
                 { "name": "string.quoted.double.atm", "match": "\"([^\"])*\"" },
-                { "match": ":\\s*(\\w+)", "captures": { "1": { "name": "string.unquoted.atm" } } }
+                { "match": ":\\s*([\\w.]+)", "captures": { "1": { "name": "string.unquoted.atm" } } }
             ]
         }
     },
