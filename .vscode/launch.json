@@ -37,20 +37,23 @@
                 "--extensionDevelopmentPath=${workspaceFolder}"
             ],
             "outFiles": [
-                "${workspaceFolder}/out/**/*.js"
+                "${workspaceFolder}/dist/**/*.js"
             ],
-            "preLaunchTask": "npm: compile"
+            "preLaunchTask": "npm: webpack"
         },
         {
-            "name": "Launch Extension Tests",
+            "name": "Extension Tests",
             "type": "extensionHost",
             "request": "launch",
             "runtimeExecutable": "${execPath}",
-            "args": ["--extensionDevelopmentPath=${workspaceRoot}", "--extensionTestsPath=${workspaceRoot}/out/test" ],
-            "stopOnEntry": false,
-            "sourceMaps": true,
-            "outFiles": [ "${workspaceRoot}/out/test/**/*.js" ],
-            "preLaunchTask": "${defaultBuildTask}"
+            "args": [
+                "--extensionDevelopmentPath=${workspaceRoot}",
+                "--extensionTestsPath=${workspaceRoot}/out/test"
+            ],
+            "outFiles": [
+                "${workspaceRoot}/out/test/**/*.js"
+            ],
+            "preLaunchTask": "npm: test-compile"
         }
     ],
     "compounds": [

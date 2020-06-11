@@ -81,7 +81,7 @@ let connectorManager: ConnectorManager = new ConnectorManager(LspConnector);
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
     // The server is implemented in node
-    serverModule = context.asAbsolutePath(path.join("out", "server", "src", "server.js"));
+    serverModule = context.asAbsolutePath(path.join("dist", "server.js"));
 
     context.subscriptions.push(vscode.commands.registerCommand('automate.showConnectors', showConnectors));
 

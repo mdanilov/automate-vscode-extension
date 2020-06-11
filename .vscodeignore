@@ -1,0 +1,7 @@
+.vscode
+node_modules/**
+out/**
+src/**
+.gitignore
+tsconfig.json
+webpack.config.js
