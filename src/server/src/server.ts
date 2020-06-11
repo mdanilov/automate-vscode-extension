@@ -38,7 +38,7 @@ let workspaceFolder: string | null | undefined;
 // Initialization options passed by the client
 let settings: ServerInitializationOptions;
 
-const rtextClient = new RTextClient();
+let rtextClient: RTextClient;
 
 let previousProblemFiles: string[] = [];
 function provideDiagnostics() {
@@ -217,6 +217,7 @@ connection.onInitialize((params) => {
     connection.console.log(`[Server(${process.pid}) ${workspaceFolder}] Started and initialize received`);
 
     settings = params.initializationOptions;
+    rtextClient = new RTextClient(settings.rtextConfig);
 
     return {
         capabilities: {
@@ -239,8 +240,9 @@ connection.onInitialize((params) => {
 connection.onInitialized(async () => {
     connection.console.log(`[Server(${process.pid}) ${workspaceFolder}] Initialized received`);
     if (workspaceFolder) {
-        await rtextClient.start(settings.rtextConfig);
-        setTimeout(() => provideDiagnostics(), 0);
+        rtextClient.start().then(() => {
+            provideDiagnostics();
+        });
     }
 });
 

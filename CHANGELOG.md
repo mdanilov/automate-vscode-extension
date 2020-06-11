@@ -4,6 +4,11 @@ All notable changes to the "automate" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+### 0.0.9
+- Status bar indicator shows the number of the running RText service instances
+- UI warning message in case of .rtext configuration cannot be found for the opened file
+- Improved error handling
+
 ### 0.0.6
 - Incorrect problem line number detection
 - Tracking .rtext file changes

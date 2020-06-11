@@ -14,12 +14,16 @@ import { ConnectorManager, ConnectorInterface } from "./server/src/rtext/connect
 import { AutomateExtensionSettings } from "./settings";
 
 let serverModule: string;
+let statusBar: vscode.StatusBarItem;
 
 class LspConnector implements ConnectorInterface {
     private _client: LanguageClient;
     static debugPort: number = 6011;
+    readonly config: ServiceConfig;
 
     constructor(config: ServiceConfig, data?: any) {
+        this.config = config;
+
         // The debug options for the server
         // --inspect=6009: runs the server in Node's Inspector mode so VS Code can attach to the server for debugging
         const debugOptions = LspConnector.debugPort > 6012 ?
@@ -79,6 +83,14 @@ export function activate(context: vscode.ExtensionContext) {
     // The server is implemented in node
     serverModule = context.asAbsolutePath(path.join("out", "server", "src", "server.js"));
 
+    context.subscriptions.push(vscode.commands.registerCommand('automate.showConnectors', showConnectors));
+
+    statusBar = vscode.window.createStatusBarItem();
+    statusBar.text = 'ESR Automate: Not running';
+    statusBar.tooltip = 'Shows the number of running automate-rtext-service instances';
+    statusBar.command = 'automate.showConnectors';
+    statusBar.show();
+
     vscode.workspace.textDocuments.forEach((document) => {
         if (document.languageId == 'atm' && !document.isClosed) {
             newTextDocumentOpened(document);
@@ -91,9 +103,29 @@ export function activate(context: vscode.ExtensionContext) {
     });
 }
 
+// shows a list of all open connectors
+export async function showConnectors() {
+    const connectors = connectorManager.allConnectors();
+    const items: vscode.QuickPickItem[] = connectors.map(conn => {
+        return {
+            label: conn.config.file,
+            detail: conn.config.patterns + ': ' + conn.config.command
+        };
+    });
+    vscode.window.showQuickPick(items, {
+        placeHolder: 'Select .rtext configuration file to open'
+    }).then(async (item) => {
+        if (item) {
+            const document = await vscode.workspace.openTextDocument(item.label);
+            await vscode.window.showTextDocument(document);
+        }
+    });
+}
+
 // this method is called when your extension is deactivated
 export function deactivate() {
     connectorManager.allConnectors().forEach(con => con.stop());
+    statusBar.dispose();
 }
 
 async function newTextDocumentOpened(document: vscode.TextDocument): Promise<void> {
@@ -101,7 +133,15 @@ async function newTextDocumentOpened(document: vscode.TextDocument): Promise<voi
     if (workspaceFolder) {
         const automateSettings = new AutomateExtensionSettings(workspaceFolder);
         if (automateSettings.useRTextServer) {
-            connectorManager.connectorForFile(document.uri.fsPath, { workspaceFolder });
+            const connector = connectorManager.connectorForFile(document.uri.fsPath, { workspaceFolder });
+            if (!connector) {
+                const message = `Cannot find .rtext configuration associated with the file: ${document.uri.fsPath}`;
+                vscode.window.showWarningMessage(message);
+            }
+            else {
+                const connectors = connectorManager.allConnectors();
+                statusBar.text = `ESR Automate: Running [${connectors.length}]`;
+            }
         }
     }
 }

@@ -2,12 +2,15 @@ import * as fs from 'fs';
 import * as crypto from 'crypto';
 
 import { Config, ServiceConfig } from './config'
+import { config } from 'process';
 
 export interface ConnectorConstructor {
     new (config: ServiceConfig, data?: any): ConnectorInterface
 }
 
 export interface ConnectorInterface {
+    readonly config: ServiceConfig;
+
     stop(): void;
 }
 

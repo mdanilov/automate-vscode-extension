@@ -25,6 +25,8 @@ interface RTextService {
 
 export class Client implements ConnectorInterface {
 
+    readonly config: ServiceConfig;
+
     private _client = new net.Socket();
     private _invocationCounter = 0;
     private _connected = false;
@@ -35,8 +37,12 @@ export class Client implements ConnectorInterface {
     private _responseData: Buffer = Buffer.alloc(0);
     private static LOCALHOST: string = "127.0.0.1";
 
-    public async start(config: ServiceConfig): Promise<void> {
-        return this.runRTextService(config).then(service => {
+    constructor(config: ServiceConfig) {
+        this.config = config;
+    }
+
+    public async start(): Promise<void> {
+        return this.runRTextService(this.config).then(service => {
             this._rtextService = service;
             service.process!.on('close', () => {
                 this._rtextService = undefined;
@@ -55,7 +61,7 @@ export class Client implements ConnectorInterface {
                 this._client.connect(port, Client.LOCALHOST, () => { this.onConnect(port, Client.LOCALHOST); resolve() });
             });
         }).catch(error => {
-            console.log(`Failed to run service ${config.command}, reason: ${error.message}`);
+            console.log(`Failed to run service ${this.config.command}, reason: ${error.message}`);
         });
     }
 
