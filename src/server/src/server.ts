@@ -84,6 +84,8 @@ function provideDiagnostics() {
         });
 
         previousProblemFiles = problemFiles;
+    }).catch(error => {
+        console.log(`Failed to load model: ${error.message}`);
     });
 }
 

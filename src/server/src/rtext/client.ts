@@ -33,8 +33,9 @@ export class Client implements ConnectorInterface {
     private _keepAliveTask?: NodeJS.Timeout;
     private _rtextService?: RTextService;
     private _responseData: Buffer = Buffer.alloc(0);
+    private static LOCALHOST: string = "127.0.0.1";
 
-    public async start(config: ServiceConfig): Promise<any> {
+    public async start(config: ServiceConfig): Promise<void> {
         return this.runRTextService(config).then(service => {
             this._rtextService = service;
             service.process!.on('close', () => {
@@ -44,11 +45,15 @@ export class Client implements ConnectorInterface {
             this._client.on("data", (data) => this.onData(data));
             this._client.on("close", () => this.onClose());
             this._client.on("error", (error) => this.onError(error));
-            this._client.connect(service.port!, "127.0.0.1", () => this.onConnect());
 
             this._keepAliveTask = setInterval(() => {
                 this.getVersion().then((response) => { console.log("Keep alive, got version " + response.version); });
             }, 60 * 1000);
+
+            return new Promise<void>(resolve => {
+                const port: number = service.port!;
+                this._client.connect(port, Client.LOCALHOST, () => { this.onConnect(port, Client.LOCALHOST); resolve() });
+            });
         }).catch(error => {
             console.log(`Failed to run service ${config.command}, reason: ${error.message}`);
         });
@@ -96,7 +101,7 @@ export class Client implements ConnectorInterface {
 
     public send(data: any, progressCallback?: Function | undefined): Promise<any> {
         if (!this._connected) {
-            return Promise.reject();
+            return Promise.reject(new Error("rtext-service is not connected"));
         }
 
         data.type = "request";
@@ -123,9 +128,9 @@ export class Client implements ConnectorInterface {
         console.log("Connection error: " + error.message);
     }
 
-    private onConnect() {
+    private onConnect(port: number, host: string) {
         this._connected = true;
-        console.log("Connected");
+        console.log("Connected to " + host + ":" + port);
         this.loadModel();
     }
 
@@ -135,7 +140,8 @@ export class Client implements ConnectorInterface {
 
         this._reconnectTimeout = setTimeout(() => {
             if (this._rtextService) {
-                this._client.connect(this._rtextService.port!, "127.0.0.1", () => this.onConnect());
+                const port: number = this._rtextService.port!;
+                this._client.connect(port, Client.LOCALHOST, () => this.onConnect(port, Client.LOCALHOST));
             }
         }, 1000);
     }
