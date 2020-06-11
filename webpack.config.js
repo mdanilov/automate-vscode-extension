@@ -10,7 +10,7 @@ const config = {
 
   entry: {
     extension: './src/extension.ts', // the entry point of this extension, 📖 -> https://webpack.js.org/configuration/entry-context/
-    server: './src/server/src/server.ts'
+    server: './modules/rtext-lsp-adapter/src/server.ts'
   },
   output: {
     // the bundle is stored in the 'dist' folder (check package.json), 📖 -> https://webpack.js.org/configuration/output/

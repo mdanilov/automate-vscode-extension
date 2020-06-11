@@ -9,8 +9,8 @@ import {
     TransportKind,
 } from "vscode-languageclient";
 
-import { ServiceConfig } from "./server/src/rtext/config";
-import { ConnectorManager, ConnectorInterface } from "./server/src/rtext/connectorManager";
+import { ServiceConfig } from "../modules/rtext-lsp-adapter/src/rtext/config";
+import { ConnectorManager, ConnectorInterface } from "../modules/rtext-lsp-adapter/src/rtext/connectorManager";
 import { AutomateExtensionSettings } from "./settings";
 
 let serverModule: string;

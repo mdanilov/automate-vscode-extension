@@ -63,7 +63,7 @@
     },
     "dependencies": {
         "vscode-languageclient": "^6.1.1",
-        "server": "file:./src/server"
+        "rtext-lsp-adapter": "file:./modules/rtext-lsp-adapter"
     },
     "devDependencies": {
         "@types/glob": "^7.1.1",

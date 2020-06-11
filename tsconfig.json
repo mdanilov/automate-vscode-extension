@@ -7,11 +7,11 @@
             "es6"
         ],
         "sourceMap": true,
-        "rootDir": "src",
+        "rootDir": ".",
         "strict": true,
         "baseUrl": ".",
         "paths": {
-            "server": ["src/server"]
+            "rtext-lsp-adapter": ["modules/rtext-lsp-adapter"]
         }
     },
     "exclude": [
