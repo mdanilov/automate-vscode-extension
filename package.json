@@ -58,7 +58,7 @@
         "webpack": "webpack --mode development",
         "webpack-dev": "webpack --mode development --watch",
         "test-compile": "tsc -p ./",
-        "lint": "eslint . --ext ts,.tsx",
+        "lint": "eslint . --ext ts",
         "test": "node ./out/test/runTest.js"
     },
     "dependencies": {
