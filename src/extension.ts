@@ -18,7 +18,7 @@ let statusBar: vscode.StatusBarItem;
 
 class LspConnector implements ConnectorInterface {
     private _client: LanguageClient;
-    static debugPort: number = 6011;
+    static debugPort = 6011;
     readonly config: ServiceConfig;
 
     constructor(config: ServiceConfig, data?: any) {
@@ -41,8 +41,8 @@ class LspConnector implements ConnectorInterface {
             run: { module: serverModule, transport: TransportKind.ipc },
         };
 
-        let configPath = path.dirname(config.file);
-        let pattern = `${configPath}/**/{${config.patterns.join('|')}}`;
+        const configPath = path.dirname(config.file);
+        const pattern = `${configPath}/**/{${config.patterns.join('|')}}`;
         // Options to control the language client
         const clientOptions: LanguageClientOptions = {
             // Register the server for bake project files
@@ -75,7 +75,7 @@ class LspConnector implements ConnectorInterface {
     }
 }
 
-let connectorManager: ConnectorManager = new ConnectorManager(LspConnector);
+const connectorManager: ConnectorManager = new ConnectorManager(LspConnector);
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -129,7 +129,7 @@ export function deactivate() {
 }
 
 async function newTextDocumentOpened(document: vscode.TextDocument): Promise<void> {
-    let workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri);
+    const workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri);
     if (workspaceFolder) {
         const automateSettings = new AutomateExtensionSettings(workspaceFolder);
         if (automateSettings.useRTextServer) {
