@@ -1,6 +1,6 @@
 {
     "name": "automate",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "publisher": "maxdanify",
     "engines": {
         "vscode": "^1.42.0"
@@ -51,7 +51,7 @@
         }
     },
     "activationEvents": [
-        "workspaceContains:**/*.atm"
+        "onStartupFinished"
     ],
     "scripts": {
         "vscode:prepublish": "webpack --mode production",

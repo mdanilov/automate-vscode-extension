@@ -4,6 +4,9 @@ All notable changes to the "automate" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+### 0.1.2
+- Experimental support for generic RText backend
+
 ### 0.1.1
 - Fixed Windows issues
 - Progress bar indicator for the model loading

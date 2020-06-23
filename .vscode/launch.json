@@ -12,6 +12,7 @@
             "protocol": "inspector",
             "port": 6011,
             "sourceMaps": true,
+            "timeout": 60000,
             "skipFiles": [
                 "<node_internals>/**"
             ]

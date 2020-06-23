@@ -12,15 +12,15 @@
                 { "include": "#annotation" },
                 { "include": "#macro_placeholder" },
                 { "include": "#macro_calculated_attribute_value" },
+                { "include": "#link" },
                 { "include": "#command" },
                 { "include": "#string" },
-                { "include": "#link" },
                 { "include": "#value" }
             ]
         },
         "comment": {
             "name": "comment.line.number-sign.atm",
-            "match": "^\\s*#.*"
+            "match": "\\s*#.*"
         },
         "annotation": {
             "name": "comment.line.atm",
@@ -35,6 +35,10 @@
             "patterns": [
                 { "include": "#all" }
             ]
+        },
+        "link": {
+            "name": "markup.underline.link.atm",
+            "match": "\\b/?\\w+/[\\w/]+\\b"
         },
         "macro_argument": {
             "name": "variable.parameter.atm",
@@ -62,14 +66,10 @@
             "name": "constant.language.atm",
             "match": "([\\w.])+"
         },
-        "link": {
-            "name": "markup.underline.link.atm",
-            "match": "/+\\w+"
-        },
         "string": {
             "patterns": [
                 { "name": "string.quoted.double.atm", "match": "\"([^\"])*\"" },
-                { "match": ":\\s*([\\w.]+)", "captures": { "1": { "name": "string.unquoted.atm" } } }
+                { "match": ":\\s*([\\w.]+)[,\\s]{1}", "captures": { "1": { "name": "string.unquoted.atm" } } }
             ]
         }
     },
