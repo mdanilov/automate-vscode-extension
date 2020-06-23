@@ -1,6 +1,6 @@
 {
     "name": "automate",
-    "version": "0.1.3",
+    "version": "0.1.4",
     "publisher": "maxdanify",
     "engines": {
         "vscode": "^1.42.0"
