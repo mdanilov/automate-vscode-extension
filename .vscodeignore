@@ -1,5 +1,6 @@
 .vscode
 node_modules/**
+modules/rtext-lsp-adapter/node_modules/**
 out/**
 src/**
 .gitignore
