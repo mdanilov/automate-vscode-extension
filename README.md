@@ -1,5 +1,7 @@
 # Automate VSCode Extension
 
+[![Version](https://vsmarketplacebadge.apphb.com/version/maxdanify.automate.svg)](https://marketplace.visualstudio.com/items?itemName=maxdanify.automate) [![Installs](https://vsmarketplacebadge.apphb.com/installs/maxdanify.automate.svg)](https://marketplace.visualstudio.com/items?itemName=maxdanify.automate)
+
 This is the ESR Automate Textual Language support plugin for Visual Studio Code. [ESR Labs Automate](https://www.esrlabs.com/work/automate/) - a lightweight yet powerful approach to AUTOSAR software development.
 
 ## Getting Started
