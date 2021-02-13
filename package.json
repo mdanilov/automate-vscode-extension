@@ -1,7 +1,7 @@
 {
     "name": "automate",
     "icon": "images/icon.png",
-    "version": "0.1.5",
+    "version": "0.1.6",
     "publisher": "maxdanify",
     "engines": {
         "vscode": "^1.42.0"
@@ -63,8 +63,8 @@
         "test": "node ./out/test/runTest.js"
     },
     "dependencies": {
-        "vscode-languageclient": "^6.1.1",
-        "rtext-lsp-adapter": "file:./modules/rtext-lsp-adapter"
+        "rtext-lsp-adapter": "file:./modules/rtext-lsp-adapter",
+        "vscode-languageclient": "^6.1.1"
     },
     "devDependencies": {
         "@types/glob": "^7.1.1",
