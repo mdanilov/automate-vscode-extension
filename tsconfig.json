@@ -3,9 +3,7 @@
         "module": "commonjs",
         "target": "es6",
         "outDir": "out",
-        "lib": [
-            "es6"
-        ],
+        "lib": ["es6"],
         "sourceMap": true,
         "strict": true,
         "baseUrl": ".",
@@ -13,8 +11,5 @@
             "rtext-lsp-adapter": ["modules/rtext-lsp-adapter"]
         }
     },
-    "exclude": [
-        "node_modules",
-        ".vscode-test"
-    ]
+    "exclude": ["node_modules", ".vscode-test"]
 }

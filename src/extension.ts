@@ -7,7 +7,7 @@ import {
     LanguageClientOptions,
     ServerOptions,
     TransportKind,
-} from "vscode-languageclient";
+} from "vscode-languageclient/node";
 
 import { ServiceConfig } from "../modules/rtext-lsp-adapter/src/rtext/config";
 import { ConnectorManager, ConnectorInterface } from "../modules/rtext-lsp-adapter/src/rtext/connectorManager";

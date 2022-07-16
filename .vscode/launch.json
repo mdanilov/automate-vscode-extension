@@ -9,7 +9,6 @@
             "type": "node",
             "request": "attach",
             "address": "localhost",
-            "protocol": "inspector",
             "port": 6011,
             "sourceMaps": true,
             "timeout": 60000,
@@ -22,7 +21,6 @@
             "type": "node",
             "request": "attach",
             "address": "localhost",
-            "protocol": "inspector",
             "port": 6012,
             "sourceMaps": true,
             "skipFiles": [
@@ -30,9 +28,9 @@
             ]
         },
         {
+            "name": "Launch Extension",
             "type": "extensionHost",
             "request": "launch",
-            "name": "Launch Extension",
             "runtimeExecutable": "${execPath}",
             "args": [
                 "--extensionDevelopmentPath=${workspaceFolder}"
