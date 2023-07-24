@@ -1,17 +1,14 @@
-import * as path from "path";
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
+import * as path from 'path';
 import * as vscode from 'vscode';
 import {
     LanguageClient,
     LanguageClientOptions,
     ServerOptions,
     TransportKind,
-} from "vscode-languageclient/node";
+} from 'vscode-languageclient/node';
 
-import { ServiceConfig } from "../modules/rtext-lsp-adapter/src/rtext/config";
-import { ConnectorManager, ConnectorInterface } from "../modules/rtext-lsp-adapter/src/rtext/connectorManager";
-import { AutomateExtensionSettings } from "./settings";
+import { ServiceConfig } from '../modules/rtext-lsp-adapter/src/rtext/config';
+import { ConnectorManager, ConnectorInterface } from '../modules/rtext-lsp-adapter/src/rtext/connectorManager';
 
 let serverModule: string;
 let statusBar: vscode.StatusBarItem;
@@ -45,14 +42,14 @@ class LspConnector implements ConnectorInterface {
         const pattern = `${configPath}/**/{${config.patterns.join('|')}}`;
         // Options to control the language client
         const clientOptions: LanguageClientOptions = {
-            // Register the server for bake project files
+            // Register the server for project files
             documentSelector: [{ scheme: "file", pattern: pattern }],
             synchronize: {
                 // Notify the server about file changes contained in the workspace
                 fileEvents: vscode.workspace.createFileSystemWatcher(pattern),
             },
             initializationOptions: {
-                hoverProvider: false,  // does not supported by RText
+                hoverProvider: false,  // FIXME: does not supported by RText
                 rtextConfig: config
             },
             workspaceFolder: data.workspaceFolder
@@ -79,18 +76,16 @@ const connectorManager: ConnectorManager = new ConnectorManager(LspConnector);
 
 async function newTextDocumentOpened(document: vscode.TextDocument): Promise<void> {
     const workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri);
-    if (workspaceFolder) {
-        const automateSettings = new AutomateExtensionSettings(workspaceFolder);
-        if (automateSettings.useRTextServer) {
-            const connector = connectorManager.connectorForFile(document.uri.fsPath, { workspaceFolder });
-            if (!connector && document.languageId === 'atm') {
-                const message = `Cannot find .rtext configuration associated with the file: ${document.uri.fsPath}`;
-                vscode.window.showWarningMessage(message);
-            }
-            else {
-                const connectors = connectorManager.allConnectors();
-                statusBar.text = `ESR Automate: Running [${connectors.length}]`;
-            }
+    const useRTextServer = vscode.workspace.getConfiguration("automate", workspaceFolder).get<boolean>('useRTextServer');
+    if (workspaceFolder && useRTextServer) {
+        const connector = connectorManager.connectorForFile(document.uri.fsPath, { workspaceFolder });
+        if (!connector && document.languageId === 'atm') {
+            const message = `Cannot find .rtext configuration associated with the file: ${document.uri.fsPath}`;
+            vscode.window.showWarningMessage(message);
+        }
+        else {
+            const connectors = connectorManager.allConnectors();
+            statusBar.text = `ESR Automate [${connectors.length}]`;
         }
     }
 }
@@ -123,7 +118,7 @@ export function activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(vscode.commands.registerCommand('automate.showConnectors', showConnectors));
 
     statusBar = vscode.window.createStatusBarItem();
-    statusBar.text = 'ESR Automate: Not running';
+    statusBar.text = 'ESR Automate [0]';
     statusBar.tooltip = 'Shows the number of running rtext-service instances';
     statusBar.command = 'automate.showConnectors';
     statusBar.show();
