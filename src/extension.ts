@@ -14,7 +14,7 @@ let serverModule: string;
 let statusBar: vscode.StatusBarItem;
 
 class LspConnector implements ConnectorInterface {
-    private _client: LanguageClient;
+    public client: LanguageClient;
     static debugPort = 6011;
     readonly config: ServiceConfig;
 
@@ -52,11 +52,12 @@ class LspConnector implements ConnectorInterface {
                 hoverProvider: false,  // FIXME: does not supported by RText
                 rtextConfig: config
             },
-            workspaceFolder: data.workspaceFolder
+            workspaceFolder: data.workspaceFolder,
+            progressOnInitialization: true
         };
 
         // Create the language client and start the client.
-        this._client = new LanguageClient(
+        this.client = new LanguageClient(
             "automateServer",
             "Automate Language Server",
             serverOptions,
@@ -64,11 +65,11 @@ class LspConnector implements ConnectorInterface {
         );
 
         // Start the client. This will also launch the server
-        this._client.start();
+        this.client.start();
     }
 
     public stop(): void {
-        this._client.stop();
+        this.client.stop();
     }
 }
 
@@ -85,28 +86,52 @@ async function newTextDocumentOpened(document: vscode.TextDocument): Promise<voi
         }
         else {
             const connectors = connectorManager.allConnectors();
-            statusBar.text = `ESR Automate [${connectors.length}]`;
+            statusBar.text = `ESR Automate $(vm) ${connectors.length}`;
         }
     }
 }
 
+interface ConnectorQuickPickItem extends vscode.QuickPickItem {
+    connector: LspConnector;
+}
+
 // shows a list of all open connectors
 export async function showConnectors(): Promise<void> {
-    const connectors = connectorManager.allConnectors();
-    const items: vscode.QuickPickItem[] = connectors.map(conn => {
+    const connectors = connectorManager.allConnectors() as LspConnector[];
+    const items: ConnectorQuickPickItem[] = connectors.map((conn: LspConnector) => {
+        const icon = conn.client.needsStop() ? '$(vm-active)' : '$(vm-outline)';
+        const workspaceFolder = conn.client.clientOptions.workspaceFolder;
+        const name = workspaceFolder ? path.relative(workspaceFolder.uri.fsPath, conn.config.file) : conn.config.file;
         return {
-            label: conn.config.file,
-            detail: conn.config.patterns + ': ' + conn.config.command
+            label: icon + ' ' + name,
+            detail: conn.config.patterns + ': ' + conn.config.command,
+            buttons: [{ iconPath: new vscode.ThemeIcon('debug-restart') }],
+            connector: conn
         };
     });
-    vscode.window.showQuickPick(items, {
-        placeHolder: 'Select .rtext configuration file to open'
-    }).then(async (item) => {
-        if (item) {
-            const document = await vscode.workspace.openTextDocument(item.label);
+
+    const current = vscode.window.createQuickPick<ConnectorQuickPickItem>();
+    current.items = items;
+    current.placeholder = 'Select .rtext configuration file to open'
+    current.onDidChangeSelection(async (selectedItems) => {
+        if (selectedItems && selectedItems.length > 0) {
+            const filename = selectedItems[0].connector.config.file;
+            const document = await vscode.workspace.openTextDocument(filename);
             await vscode.window.showTextDocument(document);
         }
     });
+    current.onDidTriggerItemButton(async (event) => {
+        const connector = event.item.connector;
+        if (connector.client.needsStop()) {
+            connector.client.stop().then(() => {
+                connector.client.start();
+            });
+        }
+        else {
+            connector.client.start();
+        }
+    });
+    current.show();
 }
 
 // this method is called when your extension is activated
@@ -118,8 +143,8 @@ export function activate(context: vscode.ExtensionContext): void {
     context.subscriptions.push(vscode.commands.registerCommand('automate.showConnectors', showConnectors));
 
     statusBar = vscode.window.createStatusBarItem();
-    statusBar.text = 'ESR Automate [0]';
-    statusBar.tooltip = 'Shows the number of running rtext-service instances';
+    statusBar.text = 'ESR Automate $(vm) 0';
+    statusBar.tooltip = 'View Running RText Services';
     statusBar.command = 'automate.showConnectors';
     statusBar.show();
 
