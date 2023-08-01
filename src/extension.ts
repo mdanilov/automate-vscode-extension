@@ -1,11 +1,6 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
-import {
-    LanguageClient,
-    LanguageClientOptions,
-    ServerOptions,
-    TransportKind,
-} from 'vscode-languageclient/node';
+import * as lsp from 'vscode-languageclient/node';
 
 import { ServiceConfig } from '../modules/rtext-lsp-adapter/src/rtext/config';
 import { ConnectorManager, ConnectorInterface } from '../modules/rtext-lsp-adapter/src/rtext/connectorManager';
@@ -14,7 +9,7 @@ let serverModule: string;
 let statusBar: vscode.StatusBarItem;
 
 class LspConnector implements ConnectorInterface {
-    public client: LanguageClient;
+    public client: lsp.LanguageClient;
     static debugPort = 6011;
     readonly config: ServiceConfig;
 
@@ -29,19 +24,19 @@ class LspConnector implements ConnectorInterface {
 
         // If the extension is launched in debug mode then the debug server options are used
         // Otherwise the run options are used
-        const serverOptions: ServerOptions = {
+        const serverOptions: lsp.ServerOptions = {
             debug: {
                 module: serverModule,
                 options: debugOptions,
-                transport: TransportKind.ipc,
+                transport: lsp.TransportKind.ipc,
             },
-            run: { module: serverModule, transport: TransportKind.ipc },
+            run: { module: serverModule, transport: lsp.TransportKind.ipc },
         };
 
         const configPath = path.dirname(config.file);
         const pattern = `${configPath}/**/{${config.patterns.join('|')}}`;
         // Options to control the language client
-        const clientOptions: LanguageClientOptions = {
+        const clientOptions: lsp.LanguageClientOptions = {
             // Register the server for project files
             documentSelector: [{ scheme: "file", pattern: pattern }],
             synchronize: {
@@ -57,7 +52,7 @@ class LspConnector implements ConnectorInterface {
         };
 
         // Create the language client and start the client.
-        this.client = new LanguageClient(
+        this.client = new lsp.LanguageClient(
             "automateServer",
             "Automate Language Server",
             serverOptions,
