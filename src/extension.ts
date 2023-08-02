@@ -100,7 +100,7 @@ export async function showConnectors(): Promise<void> {
         return {
             label: icon + ' ' + name,
             detail: conn.config.patterns + ': ' + conn.config.command,
-            buttons: [{ iconPath: new vscode.ThemeIcon('debug-restart') }],
+            buttons: [{ iconPath: new vscode.ThemeIcon('debug-restart'), tooltip: 'Restart' }],
             connector: conn
         };
     });

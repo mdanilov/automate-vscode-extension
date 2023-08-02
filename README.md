@@ -24,12 +24,19 @@ IMPORTANT: The `.rtext` file must be located in the opened workspace folder toge
 - Auto-completion of language commands and command attributes.
 - Improved navigation, developers can follow references across files and jump backward to source elements.
 - Navigate symbols in workspace.
+- Manage RText service connections.
 
 ## Syntax Highlighting
 
 The ESR Automate VSCode extension add a new language identifier `Automate` and associate it with `.atm` files to support the syntax highlighting. However, you may try to use it with another RText based language, to do this run the the `Change Language Mode` command (`Ctrl+K M`) and select the `Automate` language for the file.
 
 ![Macro](./images/macro.png)
+
+## Connection Management
+
+The extension provides a status bar indicator to show the number of the running RText service instances. Click on the indicator to see the list of the connections. Use the item `Restart` button to restart a connection.
+
+![Connection Manager](images/connection-manager.png)
 
 ## Navigation
 
