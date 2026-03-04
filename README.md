@@ -34,7 +34,8 @@ The ESR Automate VSCode extension add a new language identifier `Automate` and a
 
 ## Connection Management
 
-The extension provides a status bar indicator to show the number of the running RText service instances. Click on the indicator to see the list of the connections. Use the item `Restart` button to restart a connection.
+The extension provides a status bar indicator to show the number of the running RText service instances. Click on the indicator to see the list of the connections. Use the item `Restart` button to restart a connection. Use the item `Pause/Resume` button to pause/resume a RText service. Paused connections do not provides any diagnostics. This is useful when
+you multiple RText services are running for the same files and you want to avoid duplicated diagnostics.
 
 ![Connection Manager](images/connection-manager.png)
 

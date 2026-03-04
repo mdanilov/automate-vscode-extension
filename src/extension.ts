@@ -10,15 +10,18 @@ let statusBar: vscode.StatusBarItem;
 
 class LspConnector implements ConnectorInterface {
     public client: lsp.LanguageClient;
+    public id: number
     static debugPort = 6011;
+    static nextId = 1;
     readonly config: ServiceConfig;
 
     constructor(config: ServiceConfig, data?: any) {
         this.config = config;
+        this.id = LspConnector.nextId++;
 
         // The debug options for the server
         // --inspect=6009: runs the server in Node's Inspector mode so VS Code can attach to the server for debugging
-        const debugOptions = LspConnector.debugPort > 6012 ?
+        const debugOptions = LspConnector.debugPort > 6010 ?
             { execArgv: ["--nolazy"] } : { execArgv: ["--nolazy", `--inspect-brk=${LspConnector.debugPort}`] };
         LspConnector.debugPort++;
 
@@ -33,19 +36,27 @@ class LspConnector implements ConnectorInterface {
             run: { module: serverModule, transport: lsp.TransportKind.ipc },
         };
 
-        const configPath = path.dirname(config.file);
-        const pattern = `${configPath}/**/{${config.patterns.join('|')}}`;
+        const configDir = path.dirname(config.file);
+        const patternGlob = `{${config.patterns.join('|')}}`;
+        // Resolve each path from the rtext command relative to the .rtext file's directory.
+        // Fall back to the config directory itself if no paths were found.
+        const searchRoots = config.paths.length > 0
+            ? config.paths.map(p => path.resolve(configDir, p))
+            : [configDir];
+        const patterns = searchRoots.map(root => `${root}/**/${patternGlob}`);
+
         // Options to control the language client
         const clientOptions: lsp.LanguageClientOptions = {
             // Register the server for project files
-            documentSelector: [{ scheme: "file", pattern: pattern }],
+            documentSelector: patterns.map(p => ({ scheme: "file", pattern: p })),
             synchronize: {
                 // Notify the server about file changes contained in the workspace
-                fileEvents: vscode.workspace.createFileSystemWatcher(pattern),
+                fileEvents: patterns.map(p => vscode.workspace.createFileSystemWatcher(p)),
             },
             initializationOptions: {
                 hoverProvider: false,  // FIXME: does not supported by RText
-                rtextConfig: config
+                rtextConfig: config,
+                id: this.id
             },
             workspaceFolder: data.workspaceFolder,
             progressOnInitialization: true
@@ -53,8 +64,8 @@ class LspConnector implements ConnectorInterface {
 
         // Create the language client and start the client.
         this.client = new lsp.LanguageClient(
-            "automateServer",
-            "Automate Language Server",
+            `automate-rtext-service`,
+            `Automate Language Server ${this.id}`,
             serverOptions,
             clientOptions,
         );
@@ -93,20 +104,28 @@ interface ConnectorQuickPickItem extends vscode.QuickPickItem {
 // shows a list of all open connectors
 export async function showConnectors(): Promise<void> {
     const connectors = connectorManager.allConnectors() as LspConnector[];
-    const items: ConnectorQuickPickItem[] = connectors.map((conn: LspConnector) => {
-        const icon = conn.client.needsStop() ? '$(vm-active)' : '$(vm-outline)';
+
+    const buildItems = (): ConnectorQuickPickItem[] => connectors.map((conn: LspConnector) => {
+        const isRunning = conn.client.needsStop();
+        const icon = isRunning ? '$(vm-active)' : '$(vm-outline)';
         const workspaceFolder = conn.client.clientOptions.workspaceFolder;
         const name = workspaceFolder ? path.relative(workspaceFolder.uri.fsPath, conn.config.file) : conn.config.file;
+        const pauseResumeButton = isRunning
+            ? { iconPath: new vscode.ThemeIcon('debug-pause'), tooltip: 'Pause' }
+            : { iconPath: new vscode.ThemeIcon('debug-start'), tooltip: 'Resume' };
         return {
-            label: icon + ' ' + name,
+            label: icon + ` [${conn.id}] ` + name,
             detail: conn.config.patterns + ': ' + conn.config.command,
-            buttons: [{ iconPath: new vscode.ThemeIcon('debug-restart'), tooltip: 'Restart' }],
+            buttons: [
+                { iconPath: new vscode.ThemeIcon('debug-restart'), tooltip: 'Restart' },
+                pauseResumeButton
+            ],
             connector: conn
         };
     });
 
     const current = vscode.window.createQuickPick<ConnectorQuickPickItem>();
-    current.items = items;
+    current.items = buildItems();
     current.placeholder = 'Select .rtext configuration file to open'
     current.onDidChangeSelection(async (selectedItems) => {
         if (selectedItems && selectedItems.length > 0) {
@@ -115,15 +134,28 @@ export async function showConnectors(): Promise<void> {
             await vscode.window.showTextDocument(document);
         }
     });
+    const busy = new Set<LspConnector>();
     current.onDidTriggerItemButton(async (event) => {
         const connector = event.item.connector;
-        if (connector.client.needsStop()) {
-            connector.client.stop().then(() => {
+        if (busy.has(connector)) { return; }
+        busy.add(connector);
+        try {
+            if (event.button.tooltip === 'Restart') {
+                if (connector.client.needsStop()) {
+                    await connector.client.stop();
+                }
                 connector.client.start();
-            });
-        }
-        else {
-            connector.client.start();
+            } else {
+                // Pause / Resume
+                if (connector.client.needsStop()) {
+                    await connector.client.stop();
+                } else {
+                    connector.client.start();
+                }
+            }
+        } finally {
+            busy.delete(connector);
+            current.items = buildItems();
         }
     });
     current.show();
