@@ -25,7 +25,11 @@ const config = {
   },
   resolve: {
     // support reading TypeScript and JavaScript files, 📖 -> https://github.com/TypeStrong/ts-loader
-    extensions: ['.ts', '.js']
+    extensions: ['.ts', '.js'],
+    alias: {
+      // Use ESM build to avoid dynamic require warnings from the UMD bundle
+      'vscode-languageserver-types': path.resolve(__dirname, 'node_modules/vscode-languageserver-types/lib/esm/main.js')
+    }
   },
   module: {
     rules: [

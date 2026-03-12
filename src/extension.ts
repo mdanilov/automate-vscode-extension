@@ -2,26 +2,27 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import * as lsp from 'vscode-languageclient/node';
 
-import { ServiceConfig } from '../modules/rtext-lsp-adapter/src/rtext/config';
-import { ConnectorManager, ConnectorInterface } from '../modules/rtext-lsp-adapter/src/rtext/connectorManager';
+import * as rtext from '../modules/rtext-lsp-adapter/src/rtext';
 
 let serverModule: string;
 let statusBar: vscode.StatusBarItem;
 
-class LspConnector implements ConnectorInterface {
+type ConnectorData = { workspaceFolder: vscode.WorkspaceFolder };
+
+class LspConnector implements rtext.ConnectorInterface {
     public client: lsp.LanguageClient;
     public id: number
     static debugPort = 6011;
     static nextId = 1;
-    readonly config: ServiceConfig;
+    readonly config: rtext.ServiceConfig;
 
-    constructor(config: ServiceConfig, data?: any) {
+    constructor(config: rtext.ServiceConfig, data?: ConnectorData) {
         this.config = config;
         this.id = LspConnector.nextId++;
 
         // The debug options for the server
         // --inspect=6009: runs the server in Node's Inspector mode so VS Code can attach to the server for debugging
-        const debugOptions = LspConnector.debugPort > 6010 ?
+        const debugOptions = LspConnector.debugPort > 6011 ?
             { execArgv: ["--nolazy"] } : { execArgv: ["--nolazy", `--inspect-brk=${LspConnector.debugPort}`] };
         LspConnector.debugPort++;
 
@@ -58,7 +59,7 @@ class LspConnector implements ConnectorInterface {
                 rtextConfig: config,
                 id: this.id
             },
-            workspaceFolder: data.workspaceFolder,
+            workspaceFolder: data?.workspaceFolder,
             progressOnInitialization: true
         };
 
@@ -79,7 +80,7 @@ class LspConnector implements ConnectorInterface {
     }
 }
 
-const connectorManager: ConnectorManager = new ConnectorManager(LspConnector);
+const connectorManager: rtext.ConnectorManager<ConnectorData> = new rtext.ConnectorManager<ConnectorData>(LspConnector);
 
 async function newTextDocumentOpened(document: vscode.TextDocument): Promise<void> {
     const workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri);

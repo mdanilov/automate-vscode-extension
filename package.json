@@ -4,7 +4,7 @@
     "version": "0.2.1",
     "publisher": "maxdanify",
     "engines": {
-        "vscode": "^1.63.0"
+        "vscode": "^1.110.0"
     },
     "license": "SEE LICENSE IN LICENSE",
     "displayName": "ESR Automate",
@@ -64,18 +64,18 @@
     },
     "dependencies": {
         "rtext-lsp-adapter": "file:./modules/rtext-lsp-adapter",
-        "vscode-languageclient": "^7.0.0"
+        "vscode-languageclient": "^9.0.1"
     },
     "devDependencies": {
-        "@types/node": "^16.11.7",
-        "@types/vscode": "^1.63.0",
-        "@typescript-eslint/eslint-plugin": "^5.42.0",
-        "@typescript-eslint/parser": "^5.42.0",
-        "eslint": "^8.26.0",
-        "ts-loader": "^9.3.1",
-        "typescript": "^5.0.2",
-        "webpack": "^5.94.0",
-        "webpack-cli": "^4.10.0"
+        "@types/node": "^20.0.0",
+        "@types/vscode": "^1.110.0",
+        "@typescript-eslint/eslint-plugin": "^8.57.0",
+        "@typescript-eslint/parser": "^8.57.0",
+        "eslint": "^8.57.1",
+        "ts-loader": "^9.5.4",
+        "typescript": "^5.2.0",
+        "webpack": "^5.105.4",
+        "webpack-cli": "^6.0.1"
     },
     "repository": {
         "type": "git",
